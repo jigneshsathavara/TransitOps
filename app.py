@@ -16,7 +16,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-
+#dbconfig
 def get_db_config():
     db_uri = os.getenv('DB_URI', '').strip()
     if db_uri:
