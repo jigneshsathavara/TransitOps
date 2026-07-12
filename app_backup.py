@@ -11,7 +11,8 @@ import json
 load_dotenv()
 
 app = Flask(__name__)
-
+#configof
+#apphost
 DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'user': os.getenv('DB_USER', 'root'),
