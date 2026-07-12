@@ -1,0 +1,5 @@
+flask==3.0.3
+mysql-connector-python==9.1.0
+python-dotenv==1.2.2
+reportlab==4.0.7
+werkzeug==3.0.1

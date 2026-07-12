@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predictive Insights | TransitOps</title>
+  <meta name="description" content="Learn about TransitOps predictive insights and analytics." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="background-glow glow-one"></div>
+  <div class="background-glow glow-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">TransitOps</a>
+    <nav class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#metrics">Metrics</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-outline" href="login.html">Login</a>
+      <a class="btn btn-outline" href="index.html#contact">Book demo</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero feature-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">PREDICTIVE INSIGHTS</p>
+        <h1>Use performance trends to optimize operations</h1>
+        <p class="hero-text">
+          Leverage advanced analytics and machine learning to predict delays, identify efficiency opportunities, and make data-driven decisions. Transform raw operational data into actionable insights.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="index.html#contact">Request a demo</a>
+          <a class="btn btn-secondary" href="index.html">Back to home</a>
+        </div>
+      </div>
+
+      <div class="feature-image">
+        <div class="image-placeholder">
+          <div class="placeholder-icon">🎯</div>
+          <p>Analytics Dashboard</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-detailed section">
+      <div class="section-heading">
+        <h2>Key capabilities</h2>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <h3>Delay prediction</h3>
+          <p>Anticipate delays before they happen with AI-powered forecasting. Proactively notify customers and reschedule when needed.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Performance analytics</h3>
+          <p>Analyze key metrics like delivery time, driver efficiency, and route optimization. Identify trends and opportunities for improvement.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Route optimization</h3>
+          <p>Use historical data and real-time conditions to generate optimal routes that minimize distance and fuel consumption.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Customizable reports</h3>
+          <p>Generate detailed reports tailored to your KPIs. Export data for further analysis and compliance requirements.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="benefits-section">
+      <div class="section-heading">
+        <h2>Benefits</h2>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">28%</div>
+          <p>Average delay reduction</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">$450k</div>
+          <p>Annual fuel savings</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">15%</div>
+          <p>Efficiency improvement</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Example insight summary</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">92%</div>
+          <p>Route efficiency score</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">11 min</div>
+          <p>Predicted average delay</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">73%</div>
+          <p>Trips improved by optimization</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section section">
+      <div class="cta-card">
+        <h2>Make smarter decisions with data</h2>
+        <p>Start leveraging predictive insights to transform your logistics operations.</p>
+        <a class="btn btn-primary" href="index.html#contact">Get started today</a>
+      </div>
+    </section>
+  </main>
+
+  <button class="chat-toggle" id="chatToggle" aria-label="Open chatbot">💬</button>
+
+  <div class="chatbot-panel" id="chatbotPanel">
+    <div class="chatbot-header">
+      <div>
+        <h3>TransitOps Assistant</h3>
+        <p>Ask me about routes, alerts, or fleet support.</p>
+      </div>
+      <button class="chat-close" id="chatClose" aria-label="Close chatbot">×</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatMessages"></div>
+
+    <form class="chatbot-form" id="chatbotForm">
+      <input id="chatInput" type="text" placeholder="Type your question..." autocomplete="off" required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

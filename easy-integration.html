@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Easy Integration | TransitOps</title>
+  <meta name="description" content="Integrate TransitOps with your existing systems." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="background-glow glow-one"></div>
+  <div class="background-glow glow-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">TransitOps</a>
+    <nav class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#metrics">Metrics</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-outline" href="login.html">Login</a>
+      <a class="btn btn-outline" href="index.html#contact">Book demo</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero feature-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">EASY INTEGRATION</p>
+        <h1>Connect with your existing systems seamlessly</h1>
+        <p class="hero-text">
+          Our powerful APIs and pre-built integrations make it easy to connect TransitOps to your existing tech stack. Get up and running in minutes, not months.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="index.html#contact">Request a demo</a>
+          <a class="btn btn-secondary" href="index.html">Back to home</a>
+        </div>
+      </div>
+
+      <div class="feature-image">
+        <div class="image-placeholder">
+          <div class="placeholder-icon">⚙️</div>
+          <p>Integration Hub</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-detailed section">
+      <div class="section-heading">
+        <h2>Key capabilities</h2>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <h3>RESTful API</h3>
+          <p>Comprehensive API documentation with SDKs for popular languages. Build custom integrations tailored to your needs.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Pre-built connectors</h3>
+          <p>Ready-to-use integrations for popular platforms like Salesforce, SAP, Oracle, and Microsoft Dynamics.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Webhooks</h3>
+          <p>Real-time event streaming to trigger actions in your systems. Keep everything in sync automatically.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Migration support</h3>
+          <p>Dedicated migration team to help you transition smoothly from your existing system with zero downtime.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="benefits-section">
+      <div class="section-heading">
+        <h2>Integration benefits</h2>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">5 min</div>
+          <p>Average setup time</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">50+</div>
+          <p>Pre-built integrations</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">100%</div>
+          <p>Data consistency</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Example integration data</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">12</div>
+          <p>Data endpoints available</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">24</div>
+          <p>Third-party connectors supported</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">99.7%</div>
+          <p>Sync reliability</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section section">
+      <div class="cta-card">
+        <h2>Integrate in minutes</h2>
+        <p>Connect TransitOps to your systems and start optimizing immediately.</p>
+        <a class="btn btn-primary" href="index.html#contact">Get started today</a>
+      </div>
+    </section>
+  </main>
+
+  <button class="chat-toggle" id="chatToggle" aria-label="Open chatbot">💬</button>
+
+  <div class="chatbot-panel" id="chatbotPanel">
+    <div class="chatbot-header">
+      <div>
+        <h3>TransitOps Assistant</h3>
+        <p>Ask me about routes, alerts, or fleet support.</p>
+      </div>
+      <button class="chat-close" id="chatClose" aria-label="Close chatbot">×</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatMessages"></div>
+
+    <form class="chatbot-form" id="chatbotForm">
+      <input id="chatInput" type="text" placeholder="Type your question..." autocomplete="off" required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

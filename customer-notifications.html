@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Notifications | TransitOps</title>
+  <meta name="description" content="Learn about TransitOps customer notification features." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="background-glow glow-one"></div>
+  <div class="background-glow glow-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">TransitOps</a>
+    <nav class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#metrics">Metrics</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-outline" href="login.html">Login</a>
+      <a class="btn btn-outline" href="index.html#contact">Book demo</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero feature-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">CUSTOMER NOTIFICATIONS</p>
+        <h1>Keep customers informed every step of the way</h1>
+        <p class="hero-text">
+          Deliver accurate, timely updates to your customers with automated notifications. Build trust through transparency and improve satisfaction with real-time delivery tracking and proactive alerts.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="index.html#contact">Request a demo</a>
+          <a class="btn btn-secondary" href="index.html">Back to home</a>
+        </div>
+      </div>
+
+      <div class="feature-image">
+        <div class="image-placeholder">
+          <div class="placeholder-icon">🔔</div>
+          <p>Notification Center</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-detailed section">
+      <div class="section-heading">
+        <h2>Key capabilities</h2>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <h3>Multi-channel delivery</h3>
+          <p>Send notifications via SMS, email, push notifications, and WhatsApp. Reach customers on their preferred channels instantly.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Real-time tracking</h3>
+          <p>Customers receive live updates on delivery status, estimated arrival times, and driver location with one-click tracking links.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Proactive alerts</h3>
+          <p>Notify customers of delays, reroutes, or delivery windows automatically. Reduce support calls with clear communication.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Customizable templates</h3>
+          <p>Create branded notification templates that match your company's voice and style. Personalize messages with customer data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="benefits-section">
+      <div class="section-heading">
+        <h2>Benefits</h2>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">65%</div>
+          <p>Reduction in support inquiries</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">92%</div>
+          <p>Customer satisfaction score</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">2x</div>
+          <p>Repeat order rate increase</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Example notification flow</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">300+</div>
+          <p>Notifications sent daily</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">97%</div>
+          <p>Delivery success rate</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">18%</div>
+          <p>Reduction in customer wait calls</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section section">
+      <div class="cta-card">
+        <h2>Delight your customers with transparency</h2>
+        <p>Start building loyalty through proactive, accurate notifications.</p>
+        <a class="btn btn-primary" href="index.html#contact">Get started today</a>
+      </div>
+    </section>
+  </main>
+
+  <button class="chat-toggle" id="chatToggle" aria-label="Open chatbot">💬</button>
+
+  <div class="chatbot-panel" id="chatbotPanel">
+    <div class="chatbot-header">
+      <div>
+        <h3>TransitOps Assistant</h3>
+        <p>Ask me about routes, alerts, or fleet support.</p>
+      </div>
+      <button class="chat-close" id="chatClose" aria-label="Close chatbot">×</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatMessages"></div>
+
+    <form class="chatbot-form" id="chatbotForm">
+      <input id="chatInput" type="text" placeholder="Type your question..." autocomplete="off" required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

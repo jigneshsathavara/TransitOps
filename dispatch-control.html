@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dispatch Control | TransitOps</title>
+  <meta name="description" content="Learn about TransitOps dispatch control features." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="background-glow glow-one"></div>
+  <div class="background-glow glow-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">TransitOps</a>
+    <nav class="nav-links">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#metrics">Metrics</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-outline" href="login.html">Login</a>
+      <a class="btn btn-outline" href="index.html#contact">Book demo</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero feature-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">DISPATCH CONTROL</p>
+        <h1>Coordinate trips and assign vehicles instantly</h1>
+        <p class="hero-text">
+          Manage your entire fleet with a powerful dispatch system that gives you complete operational visibility. Assign vehicles, optimize routes, and handle exceptions in real-time from a single dashboard.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="index.html#contact">Request a demo</a>
+          <a class="btn btn-secondary" href="index.html">Back to home</a>
+        </div>
+      </div>
+
+      <div class="feature-image">
+        <div class="image-placeholder">
+          <div class="placeholder-icon">📍</div>
+          <p>Dispatch Dashboard</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-detailed section">
+      <div class="section-heading">
+        <h2>Key capabilities</h2>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <h3>Real-time trip management</h3>
+          <p>Create, assign, and modify trips instantly with live updates to your drivers. Track changes across your entire operation.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Smart vehicle assignment</h3>
+          <p>Automatically match vehicles to trips based on capacity, location, and driver availability. Reduce idle time and improve efficiency.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Dynamic routing</h3>
+          <p>Optimize routes in real-time based on traffic conditions, vehicle load, and delivery windows. Minimize travel time and costs.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Exception handling</h3>
+          <p>Quickly respond to delays, cancellations, and emergencies with intelligent reassignment suggestions.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="benefits-section">
+      <div class="section-heading">
+        <h2>Benefits</h2>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">35%</div>
+          <p>Reduction in dispatch time</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">42%</div>
+          <p>Decrease in operational costs</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">98%</div>
+          <p>Customer satisfaction rate</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Example dispatch data</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">128</div>
+          <p>Trips managed today</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">47 sec</div>
+          <p>Average route reassignment time</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">19</div>
+          <p>Live vehicles on route</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section section">
+      <div class="cta-card">
+        <h2>Ready to optimize your dispatch?</h2>
+        <p>Join thousands of companies using TransitOps for smarter logistics.</p>
+        <a class="btn btn-primary" href="index.html#contact">Get started today</a>
+      </div>
+    </section>
+  </main>
+
+  <button class="chat-toggle" id="chatToggle" aria-label="Open chatbot">💬</button>
+
+  <div class="chatbot-panel" id="chatbotPanel">
+    <div class="chatbot-header">
+      <div>
+        <h3>TransitOps Assistant</h3>
+        <p>Ask me about routes, alerts, or fleet support.</p>
+      </div>
+      <button class="chat-close" id="chatClose" aria-label="Close chatbot">×</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatMessages"></div>
+
+    <form class="chatbot-form" id="chatbotForm">
+      <input id="chatInput" type="text" placeholder="Type your question..." autocomplete="off" required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

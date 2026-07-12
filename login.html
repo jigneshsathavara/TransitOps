@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TransitOps | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-glow glow-one"></div>
+    <div class="background-glow glow-two"></div>
+
+    <header class="topbar">
+      <a class="brand" href="index.html">TransitOps</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+      <a class="btn btn-outline" href="index.html">Back home</a>
+    </header>
+
+    <main class="auth-page">
+      <section class="auth-card">
+        <div class="auth-copy">
+          <p class="eyebrow">DEMO ACCESS</p>
+          <h1>Sign in to the TransitOps demo portal</h1>
+          <p>Use one of the demo credentials below to explore the TransitOps experience for each operational role.</p>
+
+          <div class="role-list">
+            <div class="role-card">
+              <h3>Fleet Manager</h3>
+              <p><strong>Email:</strong> fleetmanager@transitops.com</p>
+              <p><strong>Password:</strong> Fleet@123</p>
+            </div>
+            <div class="role-card">
+              <h3>Dispatcher</h3>
+              <p><strong>Email:</strong> dispatcher@transitops.com</p>
+              <p><strong>Password:</strong> Dispatcher@123</p>
+            </div>
+            <div class="role-card">
+              <h3>Safety Officer</h3>
+              <p><strong>Email:</strong> safetyofficer@transitops.com</p>
+              <p><strong>Password:</strong> Safety@123</p>
+            </div>
+            <div class="role-card">
+              <h3>Financial Analyst</h3>
+              <p><strong>Email:</strong> financialanalyst@transitops.com</p>
+              <p><strong>Password:</strong> Finance@123</p>
+            </div>
+          </div>
+        </div>
+
+        <form class="auth-form" id="loginForm" action="/login" method="post">
+          <h2>Welcome back</h2>
+          <input type="email" id="email" name="email" placeholder="Email address" required />
+          <input type="password" id="password" name="password" placeholder="Password" required />
+          <button type="submit" class="btn btn-primary">Login</button>
+          <p id="loginMessage" class="form-message"></p>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById('loginForm');
+      const message = document.getElementById('loginMessage');
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('error') === '1') {
+        message.textContent = 'Invalid email or password. Try one of the demo accounts above.';
+        message.style.color = '#dc2626';
+      }
+    </script>
+  </body>
+</html>

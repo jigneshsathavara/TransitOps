@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TransitOps | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="background-glow glow-one"></div>
+    <div class="background-glow glow-two"></div>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-brand"><h2>TransitOps</h2></div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="dashboard">📊 Dashboard</a>
+                <a href="#" class="nav-item" data-tab="trips">🚗 Trips</a>
+                <a href="#" class="nav-item" data-tab="vehicles">🚙 Vehicles</a>
+                <a href="#" class="nav-item" data-tab="drivers">👥 Drivers</a>
+                <a href="#" class="nav-item" data-tab="maintenance">🔧 Maintenance</a>
+                <a href="#" class="nav-item" data-tab="fuel">⛽ Fuel & Expenses</a>
+                <a href="#" class="nav-item" data-tab="analytics">📈 Analytics</a>
+                <a href="#" class="nav-item" data-tab="settings">⚙️ Settings</a>
+            </nav>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                    <div class="header-search">
+                        <input type="text" placeholder="Search..." id="globalSearch" />
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-actions">
+                        <select id="exportTypeSelect" class="export-select" aria-label="Export type">
+                            <option value="vehicles">Vehicles</option>
+                            <option value="drivers">Drivers</option>
+                            <option value="trips">Trips</option>
+                            <option value="fleet">Fleet Report</option>
+                        </select>
+                        <button class="export-button" onclick="exportData('csv')">📄 CSV</button>
+                        <button class="export-button" onclick="exportData('pdf')">📘 PDF</button>
+                        <button class="export-button small-button" onclick="sendLicenseReminders()">🔔</button>
+                        <button class="dark-mode-toggle header-dark-mode-toggle" title="Toggle dark mode">🌙</button>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <p class="user-name">User</p>
+                            <p class="user-role" id="userRole">Dispatcher</p>
+                        </div>
+                        <div class="user-avatar">TX</div>
+                        <a href="/logout" class="btn-logout">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- DASHBOARD TAB -->
+            <div class="tab-content active" id="dashboard-tab">
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <input type="text" placeholder="🔍 Search vehicles, drivers, trips..." id="dashboardSearch" />
+                    </div>
+                    <select id="filterStatus" class="filter-select" aria-label="Vehicle status filter">
+                        <option value="">All Status</option>
+                        <option value="Available">Available</option>
+                        <option value="On Trip">On Trip</option>
+                        <option value="In Shop">In Shop</option>
+                        <option value="Retired">Retired</option>
+                    </select>
+                    <select id="filterType" class="filter-select" aria-label="Vehicle type filter">
+                        <option value="">All Types</option>
+                        <option value="Van">Van</option>
+                        <option value="Truck">Truck</option>
+                        <option value="Motorcycle">Motorcycle</option>
+                    </select>
+                    <select id="filterRegion" class="filter-select" aria-label="Region filter">
+                        <option value="">All Regions</option>
+                        <option value="Central">Central</option>
+                        <option value="North">North</option>
+                        <option value="South">South</option>
+                        <option value="East">East</option>
+                        <option value="West">West</option>
+                    </select>
+                    <button class="filter-button">Apply</button>
+                    <button class="sort-button">Sort</button>
+                </div>
+
+                <div class="kpi-grid" id="kpiGrid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">ACTIVE VEHICLES</div>
+                        <div class="kpi-value" id="activeVehicles">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">AVAILABLE VEHICLES</div>
+                        <div class="kpi-value" id="availableVehicles">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">IN MAINTENANCE</div>
+                        <div class="kpi-value" id="maintenanceVehicles">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">ACTIVE TRIPS</div>
+                        <div class="kpi-value" id="activeTrips">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">PENDING TRIPS</div>
+                        <div class="kpi-value" id="pendingTrips">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">DRIVERS ON DUTY</div>
+                        <div class="kpi-value" id="driversOnDuty">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">FLEET UTILIZATION</div>
+                        <div class="kpi-value" id="fleetUtil">0%</div>
+                    </div>
+                </div>
+
+                <div class="analytics-section" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 24px;">
+                    <div class="analytics-card">
+                        <h3>Fleet Status</h3>
+                        <canvas id="fleetChart" height="200"></canvas>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Operational Cost</h3>
+                        <canvas id="costChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRIPS TAB -->
+            <div class="tab-content" id="trips-tab">
+                <div class="section-header">
+                    <h2>TRIP MANAGEMENT</h2>
+                    <button class="btn-primary" onclick="showTripForm()">+ New Trip</button>
+                </div>
+
+                <div id="tripForm" style="display:none;" class="service-form-section">
+                    <h3>CREATE TRIP</h3>
+                    <form onsubmit="createTrip(event)">
+                        <div class="form-row">
+                            <input type="text" placeholder="Source" id="tripSource" required />
+                            <input type="text" placeholder="Destination" id="tripDest" required />
+                        </div>
+                        <div class="form-row">
+                            <select id="tripVehicle" required></select>
+                            <select id="tripDriver" required></select>
+                        </div>
+                        <div class="form-row">
+                            <input type="number" placeholder="Cargo Weight (kg)" id="tripWeight" required />
+                            <input type="number" placeholder="Planned Distance (km)" id="tripDistance" required />
+                        </div>
+                        <div class="form-row">
+                            <button type="submit" class="btn-primary">Create Trip</button>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('tripForm').style.display='none'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <table class="data-table" id="tripsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Route</th>
+                            <th>Vehicle</th>
+                            <th>Driver</th>
+                            <th>Weight</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tripsList"></tbody>
+                </table>
+            </div>
+
+            <!-- VEHICLES TAB -->
+            <div class="tab-content" id="vehicles-tab">
+                <div class="section-header">
+                    <h2>VEHICLE REGISTRY</h2>
+                    <button class="btn-primary" onclick="showVehicleForm()">+ Add Vehicle</button>
+                </div>
+
+                <div id="vehicleForm" style="display:none;" class="service-form-section">
+                    <h3>ADD VEHICLE</h3>
+                    <form onsubmit="createVehicle(event)">
+                        <div class="form-row">
+                            <input type="text" placeholder="Registration Number" id="vehicleReg" required />
+                            <input type="text" placeholder="Vehicle Name" id="vehicleName" required />
+                        </div>
+                        <div class="form-row">
+                            <input type="text" placeholder="Type (Van/Truck)" id="vehicleType" required />
+                            <input type="number" placeholder="Max Capacity (kg)" id="vehicleCapacity" required />
+                        </div>
+                        <div class="form-row">
+                            <input type="number" placeholder="Acquisition Cost" id="vehicleCost" required />
+                            <select id="vehicleRegion">
+                                <option value="Central">Central</option>
+                                <option value="North">North</option>
+                                <option value="South">South</option>
+                                <option value="East">East</option>
+                                <option value="West">West</option>
+                            </select>
+                            <select id="vehicleStatus"><option>Available</option><option>On Trip</option><option>In Shop</option><option>Retired</option></select>
+                        </div>
+                        <div class="form-row">
+                            <button type="submit" class="btn-primary">Add Vehicle</button>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('vehicleForm').style.display='none'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <table class="data-table" id="vehiclesTable">
+                    <thead>
+                        <tr>
+                            <th>Reg No.</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Region</th>
+                            <th>Capacity</th>
+                            <th>Odometer</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehiclesList"></tbody>
+                </table>
+            </div>
+
+            <!-- DRIVERS TAB -->
+            <div class="tab-content" id="drivers-tab">
+                <div class="section-header">
+                    <h2>DRIVER MANAGEMENT</h2>
+                    <button class="btn-primary" onclick="showDriverForm()">+ Add Driver</button>
+                </div>
+
+                <div id="driverForm" style="display:none;" class="service-form-section">
+                    <h3>ADD DRIVER</h3>
+                    <form onsubmit="createDriver(event)">
+                        <div class="form-row">
+                            <input type="text" placeholder="Full Name" id="driverName" required />
+                            <input type="text" placeholder="License Number" id="driverLicense" required />
+                        </div>
+                        <div class="form-row">
+                            <input type="text" placeholder="License Category" id="driverCategory" required />
+                            <input type="date" placeholder="License Expiry" id="driverExpiry" required />
+                        </div>
+                        <div class="form-row">
+                            <input type="tel" placeholder="Contact Number" id="driverContact" required />
+                            <input type="number" placeholder="Safety Score (0-5)" id="driverScore" min="0" max="5" step="0.1" />
+                        </div>
+                        <div class="form-row">
+                            <button type="submit" class="btn-primary">Add Driver</button>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('driverForm').style.display='none'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <table class="data-table" id="driversTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>License</th>
+                            <th>Category</th>
+                            <th>Expiry Date</th>
+                            <th>Safety Score</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="driversList"></tbody>
+                </table>
+            </div>
+
+            <!-- MAINTENANCE TAB -->
+            <div class="tab-content" id="maintenance-tab">
+                <div class="section-header">
+                    <h2>MAINTENANCE MANAGEMENT</h2>
+                    <button class="btn-primary" onclick="showMaintenanceForm()">+ New Record</button>
+                </div>
+
+                <div id="maintenanceForm" style="display:none;" class="service-form-section">
+                    <h3>CREATE MAINTENANCE RECORD</h3>
+                    <form onsubmit="createMaintenance(event)">
+                        <div class="form-row">
+                            <select id="mainVehicle" required></select>
+                            <input type="text" placeholder="Maintenance Type" id="mainType" required />
+                        </div>
+                        <div class="form-row">
+                            <textarea placeholder="Description" id="mainDesc"></textarea>
+                            <input type="number" placeholder="Cost" id="mainCost" required />
+                        </div>
+                        <div class="form-row">
+                            <button type="submit" class="btn-primary">Create Record</button>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('maintenanceForm').style.display='none'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <table class="data-table" id="maintenanceTable">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Type</th>
+                            <th>Cost</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maintenanceList"></tbody>
+                </table>
+            </div>
+
+            <!-- FUEL & EXPENSES TAB -->
+            <div class="tab-content" id="fuel-tab">
+                <div class="section-header">
+                    <h2>FUEL & EXPENSE MANAGEMENT</h2>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    <div class="service-form-section">
+                        <h3>FUEL LOG</h3>
+                        <form onsubmit="createFuelLog(event)">
+                            <select id="fuelVehicle" required></select>
+                            <input type="number" placeholder="Liters" id="fuelLiters" required />
+                            <input type="number" placeholder="Cost" id="fuelCost" required />
+                            <input type="date" id="fuelDate" required />
+                            <button type="submit" class="btn-primary">Log Fuel</button>
+                        </form>
+                    </div>
+
+                    <div class="service-form-section">
+                        <h3>RECORD EXPENSE</h3>
+                        <form onsubmit="createExpense(event)">
+                            <select id="expenseVehicle" required></select>
+                            <input type="text" placeholder="Expense Type" id="expenseType" required />
+                            <input type="number" placeholder="Amount" id="expenseAmount" required />
+                            <input type="date" id="expenseDate" required />
+                            <button type="submit" class="btn-primary">Record Expense</button>
+                        </form>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 24px;">Fuel Logs</h3>
+                <table class="data-table" id="fuelTable">
+                    <thead><tr><th>Vehicle</th><th>Liters</th><th>Cost</th><th>Date</th></tr></thead>
+                    <tbody id="fuelList"></tbody>
+                </table>
+
+                <h3 style="margin-top: 24px;">Expenses</h3>
+                <table class="data-table" id="expenseTable">
+                    <thead><tr><th>Vehicle</th><th>Type</th><th>Amount</th><th>Date</th></tr></thead>
+                    <tbody id="expenseList"></tbody>
+                </table>
+            </div>
+
+            <!-- ANALYTICS TAB -->
+            <div class="tab-content" id="analytics-tab">
+                <div class="section-header">
+                    <h2>ANALYTICS & REPORTS</h2>
+                </div>
+
+                <table class="data-table" id="analyticsTable">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Trips</th>
+                            <th>Distance</th>
+                            <th>Fuel Efficiency</th>
+                            <th>Operational Cost</th>
+                            <th>ROI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analyticsList"></tbody>
+                </table>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div class="tab-content" id="settings-tab">
+                <div class="section-header">
+                    <h2>SETTINGS & CONFIGURATION</h2>
+                </div>
+                <div class="service-form-section">
+                    <h3>User Settings</h3>
+                    <p>Role: <strong id="settingsRole">Dispatcher</strong></p>
+                    <p>Logged in as: <strong id="settingsEmail">user@transitops.com</strong></p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Enhanced dashboard functionality
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+
+        const userRole = getCookie('transitops_role') || 'Dispatcher';
+        const userEmail = getCookie('transitops_email') || 'user@transitops.com';
+
+        document.getElementById('userRole').textContent = userRole;
+        document.getElementById('settingsRole').textContent = userRole;
+        document.getElementById('settingsEmail').textContent = userEmail;
+
+        // Tab navigation
+        document.querySelectorAll('.tab, .nav-item').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabName = el.getAttribute('data-tab');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.tab, .nav-item').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+                if (el.classList.contains('nav-item')) {
+                    document.querySelector(`[data-tab="${tabName}"].tab`)?.classList.add('active');
+                }
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+                
+                if (tabName === 'dashboard') loadKPIs();
+                if (tabName === 'trips') loadTrips();
+                if (tabName === 'vehicles') loadVehicles();
+                if (tabName === 'drivers') loadDrivers();
+                if (tabName === 'maintenance') loadMaintenance();
+                if (tabName === 'fuel') { loadFuelLogs(); loadExpenses(); }
+                if (tabName === 'analytics') loadAnalytics();
+            });
+        });
+
+        // Load KPIs on dashboard
+        async function loadKPIs() {
+            try {
+                const res = await fetch('/api/dashboard/kpis');
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('activeVehicles').textContent = data.active_vehicles;
+                    document.getElementById('availableVehicles').textContent = data.available_vehicles;
+                    document.getElementById('maintenanceVehicles').textContent = data.vehicles_in_maintenance;
+                    document.getElementById('activeTrips').textContent = data.active_trips;
+                    document.getElementById('pendingTrips').textContent = data.pending_trips;
+                    document.getElementById('driversOnDuty').textContent = data.drivers_on_duty;
+                    document.getElementById('fleetUtil').textContent = data.fleet_utilization + '%';
+                }
+            } catch (error) {
+                console.error('Error loading KPIs:', error);
+            }
+        }
+
+        async function loadTrips() {
+            try {
+                const res = await fetch('/api/trips');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById('tripsList');
+                    tbody.innerHTML = data.data.map(t => `
+                        <tr>
+                            <td>${t.id}</td>
+                            <td>${t.source} → ${t.destination}</td>
+                            <td>${t.registration_number}</td>
+                            <td>${t.driver_name}</td>
+                            <td>${t.cargo_weight}kg</td>
+                            <td><span class="status-badge ${t.status.toLowerCase()}">${t.status}</span></td>
+                            <td>
+                                ${t.status === 'Draft' ? `<button onclick="dispatchTrip(${t.id})" class="btn-action">Dispatch</button>` : ''}
+                                ${t.status === 'Dispatched' ? `<button onclick="completeTrip(${t.id})" class="btn-action">Complete</button>` : ''}
+                                <button onclick="cancelTrip(${t.id})" class="btn-action">Cancel</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading trips:', error);
+            }
+        }
+
+        async function loadVehicles(filters = {}) {
+            try {
+                const params = new URLSearchParams();
+                if (filters.status) params.append('status', filters.status);
+                if (filters.type) params.append('type', filters.type);
+                if (filters.region) params.append('region', filters.region);
+                if (filters.search) params.append('search', filters.search);
+
+                const res = await fetch('/api/vehicles?' + params.toString());
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById('vehiclesList');
+                    tbody.innerHTML = data.data.map(v => `
+                        <tr>
+                            <td>${v.registration_number}</td>
+                            <td>${v.vehicle_name}</td>
+                            <td>${v.vehicle_type}</td>
+                            <td>${v.region || 'Central'}</td>
+                            <td>${v.max_load_capacity}kg</td>
+                            <td>${v.odometer}km</td>
+                            <td><span class="status-badge ${v.status.toLowerCase()}">${v.status}</span></td>
+                            <td><button onclick="editVehicle(${v.id})" class="btn-action">Edit</button></td>
+                        </tr>
+                    `).join('');
+
+                    // Populate vehicle selects
+                    const select = document.getElementById('tripVehicle');
+                    select.innerHTML = '<option>Select Vehicle</option>' + data.data
+                        .filter(v => v.status === 'Available')
+                        .map(v => `<option value="${v.id}">${v.registration_number}</option>`)
+                        .join('');
+                }
+            } catch (error) {
+                console.error('Error loading vehicles:', error);
+            }
+        }
+
+        async function loadDrivers() {
+            try {
+                const res = await fetch('/api/drivers');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById('driversList');
+                    tbody.innerHTML = data.data.map(d => `
+                        <tr>
+                            <td>${d.name}</td>
+                            <td>${d.license_number}</td>
+                            <td>${d.license_category}</td>
+                            <td>${d.license_expiry_date}</td>
+                            <td>${d.safety_score}/5</td>
+                            <td><span class="status-badge ${d.status.toLowerCase()}">${d.status}</span></td>
+                            <td><button onclick="editDriver(${d.id})" class="btn-action">Edit</button></td>
+                        </tr>
+                    `).join('');
+
+                    // Populate driver selects
+                    const select = document.getElementById('tripDriver');
+                    select.innerHTML = '<option>Select Driver</option>' + data.data
+                        .filter(d => d.status === 'Available')
+                        .map(d => `<option value="${d.id}">${d.name}</option>`)
+                        .join('');
+                }
+            } catch (error) {
+                console.error('Error loading drivers:', error);
+            }
+        }
+
+        async function loadMaintenance() {
+            try {
+                const res = await fetch('/api/maintenance');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById('maintenanceList');
+                    tbody.innerHTML = data.data.map(m => `
+                        <tr>
+                            <td>${m.registration_number}</td>
+                            <td>${m.maintenance_type}</td>
+                            <td>₹${m.cost}</td>
+                            <td><span class="status-badge ${m.status.toLowerCase()}">${m.status}</span></td>
+                            <td>${m.start_date}</td>
+                            <td>${m.status === 'In Progress' ? `<button onclick="closeMaintenance(${m.id})" class="btn-action">Close</button>` : ''}</td>
+                        </tr>
+                    `).join('');
+
+                    // Populate vehicle selects for maintenance
+                    const select = document.getElementById('mainVehicle');
+                    fetch('/api/vehicles').then(r => r.json()).then(d => {
+                        select.innerHTML = '<option>Select Vehicle</option>' + d.data.map(v => `<option value="${v.id}">${v.registration_number}</option>`).join('');
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading maintenance:', error);
+            }
+        }
+
+        async function loadFuelLogs() {
+            try {
+                const res = await fetch('/api/fuel');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById('fuelList');
+                    tbody.innerHTML = data.data.map(f => `
+                        <tr><td>${f.vehicle_id}</td><td>${f.liters_filled}L</td><td>₹${f.cost}</td><td>${f.fuel_date}</td></tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading fuel logs:', error);
+            }
+        }
+
+        async function loadExpenses() {
+            try {
+                const res = await fetch('/api/expenses');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById('expenseList');
+                    tbody.innerHTML = data.data.map(e => `
+                        <tr><td>${e.vehicle_id}</td><td>${e.expense_type}</td><td>₹${e.amount}</td><td>${e.expense_date}</td></tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading expenses:', error);
+            }
+        }
+
+        async function loadAnalytics() {
+            try {
+                const res = await fetch('/api/analytics/report');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById('analyticsList');
+                    tbody.innerHTML = data.data.map(a => `
+                        <tr>
+                            <td>${a.registration_number}</td>
+                            <td>${a.trips_completed || 0}</td>
+                            <td>${a.total_distance || 0}km</td>
+                            <td>${(a.fuel_efficiency || 0).toFixed(2)}km/L</td>
+                            <td>₹${(a.operational_cost || 0).toFixed(2)}</td>
+                            <td>${(a.roi || 0).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Form submission handlers
+        async function createTrip(e) {
+            e.preventDefault();
+            const payload = {
+                source: document.getElementById('tripSource').value,
+                destination: document.getElementById('tripDest').value,
+                vehicle_id: document.getElementById('tripVehicle').value,
+                driver_id: document.getElementById('tripDriver').value,
+                cargo_weight: document.getElementById('tripWeight').value,
+                planned_distance: document.getElementById('tripDistance').value
+            };
+            try {
+                const res = await fetch('/api/trips', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Trip created!');
+                    document.getElementById('tripForm').style.display = 'none';
+                    loadTrips();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function createVehicle(e) {
+            e.preventDefault();
+            const payload = {
+                registration_number: document.getElementById('vehicleReg').value,
+                vehicle_name: document.getElementById('vehicleName').value,
+                vehicle_type: document.getElementById('vehicleType').value,
+                region: document.getElementById('vehicleRegion').value,
+                max_load_capacity: document.getElementById('vehicleCapacity').value,
+                acquisition_cost: document.getElementById('vehicleCost').value,
+                status: document.getElementById('vehicleStatus').value
+            };
+            try {
+                const res = await fetch('/api/vehicles', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Vehicle added!');
+                    document.getElementById('vehicleForm').style.display = 'none';
+                    loadVehicles();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function createDriver(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('driverName').value,
+                license_number: document.getElementById('driverLicense').value,
+                license_category: document.getElementById('driverCategory').value,
+                license_expiry_date: document.getElementById('driverExpiry').value,
+                contact_number: document.getElementById('driverContact').value,
+                safety_score: document.getElementById('driverScore').value || 5.0
+            };
+            try {
+                const res = await fetch('/api/drivers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Driver added!');
+                    document.getElementById('driverForm').style.display = 'none';
+                    loadDrivers();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function createMaintenance(e) {
+            e.preventDefault();
+            const payload = {
+                vehicle_id: document.getElementById('mainVehicle').value,
+                maintenance_type: document.getElementById('mainType').value,
+                description: document.getElementById('mainDesc').value,
+                cost: document.getElementById('mainCost').value
+            };
+            try {
+                const res = await fetch('/api/maintenance', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Maintenance record created!');
+                    document.getElementById('maintenanceForm').style.display = 'none';
+                    loadMaintenance();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function createFuelLog(e) {
+            e.preventDefault();
+            const payload = {
+                vehicle_id: document.getElementById('fuelVehicle').value,
+                liters_filled: document.getElementById('fuelLiters').value,
+                cost: document.getElementById('fuelCost').value,
+                fuel_date: document.getElementById('fuelDate').value
+            };
+            try {
+                const res = await fetch('/api/fuel', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Fuel log recorded!');
+                    e.target.reset();
+                    loadFuelLogs();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function createExpense(e) {
+            e.preventDefault();
+            const payload = {
+                vehicle_id: document.getElementById('expenseVehicle').value,
+                expense_type: document.getElementById('expenseType').value,
+                amount: document.getElementById('expenseAmount').value,
+                expense_date: document.getElementById('expenseDate').value
+            };
+            try {
+                const res = await fetch('/api/expenses', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Expense recorded!');
+                    e.target.reset();
+                    loadExpenses();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function dispatchTrip(id) {
+            try {
+                const res = await fetch(`/api/trips/${id}/dispatch`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Trip dispatched!');
+                    loadTrips();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function completeTrip(id) {
+            const distance = prompt('Enter actual distance (km):');
+            const fuel = prompt('Enter fuel consumed (liters):');
+            if (distance && fuel) {
+                try {
+                    const res = await fetch(`/api/trips/${id}/complete`, { 
+                        method: 'POST', 
+                        headers: {'Content-Type': 'application/json'}, 
+                        body: JSON.stringify({ actual_distance: distance, fuel_liters: fuel })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert('Trip completed!');
+                        loadTrips();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        }
+
+        async function cancelTrip(id) {
+            if (confirm('Cancel this trip?')) {
+                try {
+                    const res = await fetch(`/api/trips/${id}/cancel`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert('Trip cancelled!');
+                        loadTrips();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        }
+
+        async function closeMaintenance(id) {
+            try {
+                const res = await fetch(`/api/maintenance/${id}/close`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Maintenance closed!');
+                    loadMaintenance();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function exportData(format) {
+            const exportType = document.getElementById('exportTypeSelect').value;
+            try {
+                if (format === 'csv') {
+                    const res = await fetch('/api/export/csv', { 
+                        method: 'POST', 
+                        headers: {'Content-Type': 'application/json'}, 
+                        body: JSON.stringify({ type: exportType })
+                    });
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `TransitOps_${exportType}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else if (format === 'pdf') {
+                    const res = await fetch('/api/export/report', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ type: exportType })
+                    });
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `TransitOps_${exportType}_Report.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function sendLicenseReminders() {
+            try {
+                const res = await fetch('/api/reminders/check-expiring-licenses', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`Sent ${data.reminders_sent} reminders!`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function applyVehicleFilters() {
+            const status = document.getElementById('filterStatus').value;
+            const type = document.getElementById('filterType').value;
+            const region = document.getElementById('filterRegion').value;
+            const search = document.getElementById('dashboardSearch').value.trim();
+            loadVehicles({ status, type, region, search });
+        }
+
+        document.getElementById('filterStatus').addEventListener('change', applyVehicleFilters);
+        document.getElementById('filterType').addEventListener('change', applyVehicleFilters);
+        document.getElementById('filterRegion').addEventListener('change', applyVehicleFilters);
+        document.getElementById('dashboardSearch').addEventListener('input', () => applyVehicleFilters());
+        document.querySelector('.filter-button').addEventListener('click', applyVehicleFilters);
+
+        function showTripForm() { document.getElementById('tripForm').style.display = 'block'; }
+        function showVehicleForm() { document.getElementById('vehicleForm').style.display = 'block'; }
+        function showDriverForm() { document.getElementById('driverForm').style.display = 'block'; }
+        function showMaintenanceForm() { document.getElementById('maintenanceForm').style.display = 'block'; }
+
+        // Load dashboard on startup
+        loadKPIs();
+    </script>
+</body>
+</html>
