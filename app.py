@@ -4,6 +4,7 @@ import sqlite3
 import csv
 import io
 from email.message import EmailMessage
+from urllib.parse import urlparse
 from flask import Flask, request, jsonify, send_file, send_from_directory, redirect, make_response
 import mysql.connector
 from dotenv import load_dotenv
@@ -15,13 +16,31 @@ load_dotenv()
 
 app = Flask(__name__)
 
-DB_CONFIG = {
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'user': os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASSWORD', ''),
-    'database': os.getenv('DB_NAME', 'transitops'),
-    'autocommit': True
-}
+
+def get_db_config():
+    db_uri = os.getenv('DB_URI', '').strip()
+    if db_uri:
+        parsed = urlparse(db_uri)
+        if parsed.scheme and parsed.hostname:
+            return {
+                'host': parsed.hostname,
+                'port': parsed.port or 3306,
+                'user': parsed.username or os.getenv('DB_USER', 'root'),
+                'password': parsed.password or os.getenv('DB_PASSWORD', ''),
+                'database': parsed.path.lstrip('/') or os.getenv('DB_NAME', 'transitops'),
+                'autocommit': True
+            }
+
+    return {
+        'host': os.getenv('DB_HOST', 'localhost'),
+        'user': os.getenv('DB_USER', 'root'),
+        'password': os.getenv('DB_PASSWORD', ''),
+        'database': os.getenv('DB_NAME', 'transitops'),
+        'autocommit': True
+    }
+
+
+DB_CONFIG = get_db_config()
 
 DB_SQLITE_PATH = os.getenv('DB_SQLITE_PATH', os.path.join(os.path.dirname(__file__), 'contact_requests.db'))
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'sathavarajignesh2@gmal.com')

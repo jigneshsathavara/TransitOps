@@ -9,6 +9,27 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+const getDbConfig = () => {
+  const dbUri = process.env.DB_URI;
+  if (dbUri) {
+    const parsed = new URL(dbUri);
+    return {
+      host: parsed.hostname,
+      port: parsed.port || 3306,
+      user: decodeURIComponent(parsed.username || process.env.DB_USER || 'root'),
+      password: decodeURIComponent(parsed.password || process.env.DB_PASSWORD || ''),
+      database: parsed.pathname.replace(/^\/+/, '') || process.env.DB_NAME || 'transitops'
+    };
+  }
+
+  return {
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'transitops'
+  };
+};
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,12 +43,7 @@ app.post('/api/contact', async (req, res) => {
 
   let connection;
   try {
-    connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME
-    });
+    connection = await mysql.createConnection(getDbConfig());
 
     await connection.execute(
       'INSERT INTO contact_requests (full_name, email, company, message) VALUES (?, ?, ?, ?)',
