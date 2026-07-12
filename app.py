@@ -913,26 +913,36 @@ def get_analytics_report():
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         
-        # Vehicle analytics
         cursor.execute("""
-            SELECT 
+            SELECT
                 v.id,
                 v.registration_number,
                 v.vehicle_name,
-                COUNT(DISTINCT t.id) as trips_completed,
-                SUM(COALESCE(t.actual_distance, 0)) as total_distance,
-                SUM(f.liters_filled) as total_fuel_liters,
-                SUM(f.cost) as total_fuel_cost,
-                (SUM(COALESCE(t.actual_distance, 0)) / NULLIF(SUM(f.liters_filled), 0)) as fuel_efficiency,
-                SUM(f.cost) + SUM(COALESCE(m.cost, 0)) + SUM(COALESCE(e.amount, 0)) as operational_cost,
-                v.acquisition_cost,
-                ((SUM(COALESCE(t.actual_distance, 0)) * 50) - (SUM(f.cost) + SUM(COALESCE(m.cost, 0)))) / NULLIF(v.acquisition_cost, 0) as roi
+                v.vehicle_type,
+                v.region,
+                (SELECT COUNT(*) FROM trips t WHERE t.vehicle_id=v.id AND t.status='Completed') as trips_completed,
+                (SELECT AVG(COALESCE(t.actual_distance, 0)) FROM trips t WHERE t.vehicle_id=v.id AND t.status='Completed') as avg_trip_distance,
+                (SELECT SUM(COALESCE(t.actual_distance, 0)) FROM trips t WHERE t.vehicle_id=v.id AND t.status='Completed') as total_distance,
+                (SELECT SUM(f.liters_filled) FROM fuel_logs f WHERE f.vehicle_id=v.id) as total_fuel_liters,
+                (SELECT SUM(f.cost) FROM fuel_logs f WHERE f.vehicle_id=v.id) as total_fuel_cost,
+                (SELECT SUM(m.cost) FROM maintenance_logs m WHERE m.vehicle_id=v.id) as total_maintenance_cost,
+                (SELECT SUM(e.amount) FROM expenses e WHERE e.vehicle_id=v.id) as total_expense_cost,
+                CASE
+                    WHEN (SELECT SUM(f.liters_filled) FROM fuel_logs f WHERE f.vehicle_id=v.id) > 0
+                    THEN (SELECT SUM(COALESCE(t.actual_distance, 0)) FROM trips t WHERE t.vehicle_id=v.id AND t.status='Completed') /
+                         (SELECT SUM(f.liters_filled) FROM fuel_logs f WHERE f.vehicle_id=v.id)
+                    ELSE 0
+                END as fuel_efficiency,
+                CASE
+                    WHEN v.acquisition_cost > 0
+                    THEN ((SELECT SUM(COALESCE(t.actual_distance, 0)) FROM trips t WHERE t.vehicle_id=v.id AND t.status='Completed') * 50
+                          - ((SELECT SUM(f.cost) FROM fuel_logs f WHERE f.vehicle_id=v.id) + (SELECT SUM(m.cost) FROM maintenance_logs m WHERE m.vehicle_id=v.id)))
+                         / v.acquisition_cost
+                    ELSE 0
+                END as roi,
+                (SELECT COUNT(*) FROM maintenance_logs m WHERE m.vehicle_id=v.id AND m.status='Open') as open_maintenance,
+                (SELECT COUNT(*) FROM maintenance_logs m WHERE m.vehicle_id=v.id AND m.status='Closed') as closed_maintenance
             FROM vehicles v
-            LEFT JOIN trips t ON v.id = t.vehicle_id AND t.status = 'Completed'
-            LEFT JOIN fuel_logs f ON v.id = f.vehicle_id
-            LEFT JOIN maintenance_logs m ON v.id = m.vehicle_id
-            LEFT JOIN expenses e ON v.id = e.vehicle_id
-            GROUP BY v.id
             ORDER BY v.registration_number
         """)
         analytics = cursor.fetchall()
@@ -961,14 +971,40 @@ def get_dashboard_analytics():
         cursor.execute("SELECT COUNT(*) as total, status FROM trips GROUP BY status")
         trip_stats = cursor.fetchall()
         
-        cursor.execute("SELECT v.registration_number, SUM(f.liters_filled) as total_liters, SUM(f.cost) as total_cost FROM fuel_logs f JOIN vehicles v ON f.vehicle_id = v.id GROUP BY v.id")
-        fuel_data = cursor.fetchall()
-        
         cursor.execute("SELECT COUNT(*) as total FROM vehicles WHERE status='Available'")
         available_vehicles = cursor.fetchone()['total']
         cursor.execute("SELECT COUNT(*) as total FROM vehicles")
         total_vehicles = cursor.fetchone()['total']
-        fleet_utilization = (total_vehicles - available_vehicles) / total_vehicles * 100 if total_vehicles > 0 else 0
+        cursor.execute("SELECT COUNT(*) as total FROM drivers")
+        total_drivers = cursor.fetchone()['total']
+        cursor.execute("SELECT COUNT(*) as total FROM trips WHERE status='Completed'")
+        completed_trips = cursor.fetchone()['total']
+        cursor.execute("SELECT COUNT(*) as total FROM trips WHERE status='Cancelled'")
+        cancelled_trips = cursor.fetchone()['total']
+        cursor.execute("SELECT AVG(actual_distance) as average_distance FROM trips WHERE actual_distance IS NOT NULL")
+        avg_trip_distance = cursor.fetchone()['average_distance'] or 0
+        cursor.execute("SELECT SUM(cost) as total_cost FROM fuel_logs")
+        total_fuel_cost = cursor.fetchone()['total_cost'] or 0
+        cursor.execute("SELECT SUM(cost) as total_maintenance_cost FROM maintenance_logs")
+        total_maintenance_cost = cursor.fetchone()['total_maintenance_cost'] or 0
+        cursor.execute("SELECT SUM(amount) as total_expense_cost FROM expenses")
+        total_expense_cost = cursor.fetchone()['total_expense_cost'] or 0
+        cursor.execute("SELECT COUNT(*) as total, vehicle_type as label FROM vehicles GROUP BY vehicle_type")
+        vehicle_type_breakdown = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) as total, region as label FROM vehicles GROUP BY region")
+        region_breakdown = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) as total, status as label FROM trips GROUP BY status")
+        trip_status_breakdown = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) as total, status as label FROM vehicles GROUP BY status")
+        vehicle_status_breakdown = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) as total, status as label FROM drivers GROUP BY status")
+        driver_status_breakdown = cursor.fetchall()
+        cursor.execute("SELECT COUNT(*) as total FROM maintenance_logs WHERE status = 'Open'")
+        open_maintenance = cursor.fetchone()['total']
+        cursor.execute("SELECT COUNT(*) as total FROM maintenance_logs WHERE status = 'Closed'")
+        closed_maintenance = cursor.fetchone()['total']
+        
+        fleet_utilization = ((total_vehicles - available_vehicles) / total_vehicles * 100) if total_vehicles > 0 else 0
         
         cursor.close()
         connection.close()
@@ -978,8 +1014,24 @@ def get_dashboard_analytics():
             'vehicle_stats': vehicle_stats,
             'driver_stats': driver_stats,
             'trip_stats': trip_stats,
-            'fuel_data': fuel_data,
-            'fleet_utilization': round(fleet_utilization, 2)
+            'fuel_data': {
+                'total_cost': round(total_fuel_cost, 2),
+                'maintenance_cost': round(total_maintenance_cost, 2),
+                'expense_cost': round(total_expense_cost, 2)
+            },
+            'fleet_utilization': round(fleet_utilization, 2),
+            'total_vehicles': total_vehicles,
+            'total_drivers': total_drivers,
+            'completed_trips': completed_trips,
+            'cancelled_trips': cancelled_trips,
+            'average_trip_distance': round(avg_trip_distance or 0, 2),
+            'vehicle_type_breakdown': vehicle_type_breakdown,
+            'region_breakdown': region_breakdown,
+            'trip_status_breakdown': trip_status_breakdown,
+            'vehicle_status_breakdown': vehicle_status_breakdown,
+            'driver_status_breakdown': driver_status_breakdown,
+            'open_maintenance': open_maintenance,
+            'closed_maintenance': closed_maintenance
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

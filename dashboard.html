@@ -367,15 +367,46 @@
                     <h2>ANALYTICS & REPORTS</h2>
                 </div>
 
+                <div class="analytics-summary-grid" style="display:grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap:16px; margin-bottom:24px;">
+                    <div class="kpi-card"><div class="kpi-label">TOTAL VEHICLES</div><div class="kpi-value" id="analyticsTotalVehicles">0</div></div>
+                    <div class="kpi-card"><div class="kpi-label">TOTAL DRIVERS</div><div class="kpi-value" id="analyticsTotalDrivers">0</div></div>
+                    <div class="kpi-card"><div class="kpi-label">COMPLETED TRIPS</div><div class="kpi-value" id="analyticsCompletedTrips">0</div></div>
+                    <div class="kpi-card"><div class="kpi-label">CANCELLED TRIPS</div><div class="kpi-value" id="analyticsCancelledTrips">0</div></div>
+                    <div class="kpi-card"><div class="kpi-label">AVG TRIP DISTANCE</div><div class="kpi-value" id="analyticsAvgTripDistance">0 km</div></div>
+                    <div class="kpi-card"><div class="kpi-label">FLEET UTILIZATION</div><div class="kpi-value" id="analyticsFleetUtil">0%</div></div>
+                    <div class="kpi-card"><div class="kpi-label">FUEL COST</div><div class="kpi-value" id="analyticsFuelCost">₹0</div></div>
+                    <div class="kpi-card"><div class="kpi-label">MAINTENANCE COST</div><div class="kpi-value" id="analyticsMaintCost">₹0</div></div>
+                </div>
+
+                <div class="analytics-section" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:24px; margin-bottom:24px;">
+                    <div class="analytics-card">
+                        <h3>Vehicle Type Breakdown</h3>
+                        <canvas id="typeBreakdownChart" height="220"></canvas>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Region Breakdown</h3>
+                        <canvas id="regionBreakdownChart" height="220"></canvas>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Trip Status</h3>
+                        <canvas id="tripStatusChart" height="220"></canvas>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:24px;">Vehicle Performance</h3>
                 <table class="data-table" id="analyticsTable">
                     <thead>
                         <tr>
                             <th>Vehicle</th>
+                            <th>Type</th>
+                            <th>Region</th>
                             <th>Trips</th>
                             <th>Distance</th>
-                            <th>Fuel Efficiency</th>
-                            <th>Operational Cost</th>
+                            <th>Fuel Eff.</th>
+                            <th>Op Cost</th>
                             <th>ROI</th>
+                            <th>Open Maint.</th>
+                            <th>Closed Maint.</th>
                         </tr>
                     </thead>
                     <tbody id="analyticsList"></tbody>
@@ -449,6 +480,18 @@
                     document.getElementById('pendingTrips').textContent = data.pending_trips;
                     document.getElementById('driversOnDuty').textContent = data.drivers_on_duty;
                     document.getElementById('fleetUtil').textContent = data.fleet_utilization + '%';
+                }
+
+                const analyticsRes = await fetch('/api/analytics/dashboard');
+                const analyticsData = await analyticsRes.json();
+                if (analyticsData.success) {
+                    const statusLabels = analyticsData.vehicle_status_breakdown.map(item => item.label);
+                    const statusValues = analyticsData.vehicle_status_breakdown.map(item => item.total);
+                    window.initChart('fleetChart', 'bar', statusLabels, [{ label: 'Fleet Status', data: statusValues, backgroundColor: ['#6366F1', '#34D399', '#F59E0B', '#EF4444'] }]);
+
+                    const costLabels = ['Fuel', 'Maintenance', 'Other'];
+                    const costValues = [analyticsData.fuel_data.total_cost, analyticsData.fuel_data.maintenance_cost, analyticsData.fuel_data.expense_cost];
+                    window.initChart('costChart', 'doughnut', costLabels, [{ label: 'Cost Distribution', data: costValues, backgroundColor: ['#2563EB', '#F97316', '#10B981'] }]);
                 }
             } catch (error) {
                 console.error('Error loading KPIs:', error);
@@ -609,18 +652,50 @@
 
         async function loadAnalytics() {
             try {
-                const res = await fetch('/api/analytics/report');
-                const data = await res.json();
-                if (data.success) {
+                const [dashboardRes, reportRes] = await Promise.all([
+                    fetch('/api/analytics/dashboard'),
+                    fetch('/api/analytics/report')
+                ]);
+                const dashboardData = await dashboardRes.json();
+                const reportData = await reportRes.json();
+
+                if (dashboardData.success) {
+                    document.getElementById('analyticsTotalVehicles').textContent = dashboardData.total_vehicles;
+                    document.getElementById('analyticsTotalDrivers').textContent = dashboardData.total_drivers;
+                    document.getElementById('analyticsCompletedTrips').textContent = dashboardData.completed_trips;
+                    document.getElementById('analyticsCancelledTrips').textContent = dashboardData.cancelled_trips;
+                    document.getElementById('analyticsAvgTripDistance').textContent = `${dashboardData.average_trip_distance} km`;
+                    document.getElementById('analyticsFleetUtil').textContent = `${dashboardData.fleet_utilization}%`;
+                    document.getElementById('analyticsFuelCost').textContent = `₹${dashboardData.fuel_data.total_cost}`;
+                    document.getElementById('analyticsMaintCost').textContent = `₹${dashboardData.fuel_data.maintenance_cost}`;
+
+                    const typeLabels = dashboardData.vehicle_type_breakdown.map(item => item.label);
+                    const typeValues = dashboardData.vehicle_type_breakdown.map(item => item.total);
+                    window.initChart('typeBreakdownChart', 'doughnut', typeLabels, [{ label: 'Vehicle Types', data: typeValues, backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'] }]);
+
+                    const regionLabels = dashboardData.region_breakdown.map(item => item.label);
+                    const regionValues = dashboardData.region_breakdown.map(item => item.total);
+                    window.initChart('regionBreakdownChart', 'pie', regionLabels, [{ label: 'Regions', data: regionValues, backgroundColor: ['#6366F1', '#22C55E', '#F97316', '#14B8A6', '#F43F5E'] }]);
+
+                    const tripStatusLabels = dashboardData.trip_status_breakdown.map(item => item.label);
+                    const tripStatusValues = dashboardData.trip_status_breakdown.map(item => item.total);
+                    window.initChart('tripStatusChart', 'bar', tripStatusLabels, [{ label: 'Trip Status', data: tripStatusValues, backgroundColor: ['#2563EB', '#F59E0B', '#10B981', '#EF4444'] }]);
+                }
+
+                if (reportData.success) {
                     const tbody = document.getElementById('analyticsList');
-                    tbody.innerHTML = data.data.map(a => `
+                    tbody.innerHTML = reportData.data.map(a => `
                         <tr>
                             <td>${a.registration_number}</td>
+                            <td>${a.vehicle_type || 'N/A'}</td>
+                            <td>${a.region || 'N/A'}</td>
                             <td>${a.trips_completed || 0}</td>
-                            <td>${a.total_distance || 0}km</td>
-                            <td>${(a.fuel_efficiency || 0).toFixed(2)}km/L</td>
-                            <td>₹${(a.operational_cost || 0).toFixed(2)}</td>
+                            <td>${a.total_distance || 0} km</td>
+                            <td>${(a.fuel_efficiency || 0).toFixed(2)} km/L</td>
+                            <td>₹${(a.total_fuel_cost || 0) + (a.total_maintenance_cost || 0) + (a.total_expense_cost || 0)}</td>
                             <td>${(a.roi || 0).toFixed(2)}</td>
+                            <td>${a.open_maintenance || 0}</td>
+                            <td>${a.closed_maintenance || 0}</td>
                         </tr>
                     `).join('');
                 }
